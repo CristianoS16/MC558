@@ -10,6 +10,8 @@ using namespace std;
 // ATENÇÃO!
 // Você é livre para incluir outras bibliotecas, implementar funções auxiliares, acrecentar definições, tipos e estruturas.
 
+typedef pair<int, double> iPair;
+
 // Esta função deve retornar o valor obtido pela sua solução //
 /* Parâmetros: 
     n, m e k são os números de terras, pontes e ingredientes, respecitivamente.
@@ -22,7 +24,46 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 	double resultado = NIL;
 	
 	// MODIFIQUE AQUI NO MEIO
+	cout << "n=" << n;
+	cout << "\nm=" << m;
+	cout << "\nk=" << k;
+
+	cout << "\n----------\nINGREDIENTES\n";
+	for (int i=0; i < n; i++){
+		cout << mapaIngredientes[i] << " ";
+	}
+
+	cout << "\n----------\nPROB:\n";
+	for (int i=0; i<m; i++){
+		cout << probPontes[i] << " ";
+	}
+
+	cout << "\n----------\nPONTES\n";
+	for (int i = 0; i < m; i++){
+		cout << pontes[i][0] << ',' << pontes[i][1];
+		cout << '\n';
+	}
 	
+	//Estrutura para armazenar o grado em lista de adjacência
+	vector<vector<pair<int,double> > > Graph(n);
+
+	for(int i=0; i<m; i++){
+		Graph[pontes[i][0]].push_back( make_pair(pontes[i][1], probPontes[i]) );
+		Graph[pontes[i][1]].push_back( make_pair(pontes[i][0], probPontes[i]) );
+	}
+
+	//Imprime lista de adjacência 
+	for(int i=0; i<n; i++){
+		cout << "VERTICE " << i << '\n';
+		int listSize = Graph[i].size();
+		for(int j=0; j<listSize; j++){
+			cout << Graph[i][j].first << ", " << Graph[i][j].second << '\n';
+		}
+	}
+
+	//
+
+
 	return resultado;
 }
 
