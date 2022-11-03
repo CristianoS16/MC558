@@ -6,6 +6,7 @@
 using namespace std;
 
 #define NIL -1
+#define PROB_MIN 0
 
 // ATENÇÃO!
 // Você é livre para incluir outras bibliotecas, implementar funções auxiliares, acrecentar definições, tipos e estruturas.
@@ -44,6 +45,7 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 		cout << '\n';
 	}
 	
+	cout << "\n ---------- imprimiu pontes ---------- \n";
 	//Estrutura para armazenar o grado em lista de adjacência
 	vector<vector<pair<int,double> > > Graph(n);
 
@@ -57,12 +59,63 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 		cout << "VERTICE " << i << '\n';
 		int listSize = Graph[i].size();
 		for(int j=0; j<listSize; j++){
+			cout << "i: " << i << " j: " << j << "\n";
 			cout << Graph[i][j].first << ", " << Graph[i][j].second << '\n';
 		}
 	}
 
-	//
+	cout << "imprimeu lista de adj";
 
+	//Dijkstra 
+	//typedef pair<int, double> iPair;
+	//Fila de prioridades
+	priority_queue<iPair> Q;
+	vector<double> distance(n, PROB_MIN);
+
+	//Inicia o primeiro vertice com prob 1
+	distance[0] = 1;
+	//Primeiro vertice e empilhado para startar o algoritmo
+	Q.push( make_pair(0,1) );
+
+	while(Q.size()>0){
+		cout << "\n --------------- Entra While  --------------- \n";
+		int v = Q.top().first;
+		double prob = Q.top().second;
+		Q.pop();
+
+		cout << "\nCurrent v: " << v;
+		cout << "\nCurrent prob: " << prob << "\n";
+
+		//Relax
+		// if(distance[v]!=prob) continue;
+
+		//Verifica o tamanho da lista de adj
+		int listSize = Graph[v].size();
+		//Faz o relax para vertice adj
+		for(int j=0; j<listSize; j++){
+			int u = Graph[v][j].first;
+			double cost = Graph[v][j].second;
+			cout << "i: " << v << " j: " << j << "\n";
+			cout << "DENTRO LALAL: " << Graph[0][0].second;
+			cout << "\ncost: " << cost << "\n";
+			cout << "\nFATHER : " << v << "\n";
+			cout << "distance[v] : " << distance[v] << "\n";
+			cout << "RELAX : " << u << "\n";
+			cout << "distance[u] : " << distance[u] << "\n";
+			cout << "distance[v]*cost : " << distance[v]*cost << "\n";
+
+			if( distance[u]<distance[v]*cost ){
+				cout << "ENTRA IF \n";
+				distance[u] = distance[v]*cost;
+				Q.push( make_pair(u, distance[u]));
+			}
+		}
+	}
+
+	cout << "\n DISTANCE \n";
+	for(int i=0; i<n; i++){
+		cout << distance[i] << " - ";
+	}
 
 	return resultado;
 }
@@ -101,7 +154,7 @@ int main()
 	double resultado = NIL;
 	resultado = melhorRota(n, m, pontes, probPontes, k, mapaIngredientes);
 
-	cout << fixed << setprecision(5) << resultado << endl;
+	cout << "\n RESULTADO: " << fixed << setprecision(5) << resultado << endl;
 
 	return 0;
 }
