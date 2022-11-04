@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <queue>
 #include <cmath>
+#include <math.h>
+
 using namespace std;
 
 #define NIL -1
@@ -13,6 +15,15 @@ using namespace std;
 
 typedef pair<int, double> iPair;
 
+int bitToDec(bool bitVector[6]){
+	int result = 0;
+	for(int i =1; i<7; i++){
+		if(bitVector[i-1]){
+			result += pow(2,6-i); 
+		}
+	}
+	return result;
+}
 // Esta função deve retornar o valor obtido pela sua solução //
 /* Parâmetros: 
     n, m e k são os números de terras, pontes e ingredientes, respecitivamente.
@@ -54,6 +65,40 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 		Graph[pontes[i][1]].push_back( make_pair(pontes[i][0], probPontes[i]) );
 	}
 
+	//Estrutura de dados para guardar os estados
+	int combinations = pow(2,k);
+	double mat[64][100];
+  std::fill(*mat, *mat + n*combinations, PROB_MIN);
+	mat[0][0] = 1;
+	//Imprime a matriz de estados
+	cout << "\n ---------- imprime matriz de estados ---------- \n";
+	for(int i=0; i<combinations; i++){
+		for(int j=0; j<n; j++){
+			cout << mat[i][j] << " ";
+		}
+		cout << "\n";
+	}
+
+	//bitarray
+	bool bitVector[] = {false, false, false, false, false, false};
+
+	cout << "\n AQUI MAN AQUI MAN: " << bitToDec( bitVector ) << "\n";
+
+	// bitVector[4] = true;
+
+	// mat[bitToDec(bitVector)][2] = 1;
+
+	// 	//Imprime a matriz de estados
+	// cout << "\n ---------- imprime matriz de estados ---------- \n";
+	// for(int i=0; i<combinations; i++){
+	// 	for(int j=0; j<n; j++){
+	// 		cout << mat[i][j] << " ";
+	// 	}
+	// 	cout << "\n";
+	// }
+
+	// return 1;
+
 	//Imprime lista de adjacência 
 	for(int i=0; i<n; i++){
 		cout << "VERTICE " << i << '\n';
@@ -63,6 +108,7 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 			cout << Graph[i][j].first << ", " << Graph[i][j].second << '\n';
 		}
 	}
+
 
 	cout << "imprimeu lista de adj";
 
@@ -86,6 +132,8 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 		cout << "\nCurrent v: " << v;
 		cout << "\nCurrent prob: " << prob << "\n";
 
+		
+
 		//Relax
 		// if(distance[v]!=prob) continue;
 
@@ -95,26 +143,55 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 		for(int j=0; j<listSize; j++){
 			int u = Graph[v][j].first;
 			double cost = Graph[v][j].second;
-			cout << "i: " << v << " j: " << j << "\n";
-			cout << "DENTRO LALAL: " << Graph[0][0].second;
-			cout << "\ncost: " << cost << "\n";
-			cout << "\nFATHER : " << v << "\n";
-			cout << "distance[v] : " << distance[v] << "\n";
-			cout << "RELAX : " << u << "\n";
-			cout << "distance[u] : " << distance[u] << "\n";
-			cout << "distance[v]*cost : " << distance[v]*cost << "\n";
-
+			
+			// cout << "i: " << v << " j: " << j << "\n";
+			// cout << "DENTRO LALAL: " << Graph[0][0].second;
+			// cout << "\ncost: " << cost << "\n";
+			// cout << "\nFATHER : " << v << "\n";
+			// cout << "distance[v] : " << distance[v] << "\n";
+			// cout << "RELAX : " << u << "\n";
+			// cout << "distance[u] : " << distance[u] << "\n";
+			// cout << "distance[v]*cost : " << distance[v]*cost << "\n";
+			double newProb = distance[v]*cost;
 			if( distance[u]<distance[v]*cost ){
 				cout << "ENTRA IF \n";
 				distance[u] = distance[v]*cost;
 				Q.push( make_pair(u, distance[u]));
 			}
+			//Atualiza ingredientes pegos
+			if( mapaIngredientes[u]>0 ){
+				cout << "INGREDIENTE ENCONTRADO: " << mapaIngredientes[u] << "\n";
+				bitVector[6-mapaIngredientes[u]] = true;		
+			}
+			//Atualiza estado no tabela
+			if(mat[bitToDec(bitVector)][u]<newProb){
+				cout << "ENTRE NO IF MAN HUHUHUHUHUHU";
+				mat[bitToDec(bitVector)][u] = newProb;
+				cout << "\nTESTESTESTETESTE: " << mat[bitToDec(bitVector)][u];
+				cout << "\n u: " << u << "bittodec: " << bitToDec(bitVector);
+			}
+			cout << "\n\n";
 		}
+
+		break;
 	}
 
 	cout << "\n DISTANCE \n";
 	for(int i=0; i<n; i++){
 		cout << distance[i] << " - ";
+	}
+
+	//Imprime a matriz de estados
+	cout << "\n ---------- imprime matriz de estados final da interação ---------- \n";
+	for(int i=0; i<combinations; i++){
+		for(int j=0; j<n; j++){
+			cout << mat[i][j] << "     ";
+		}
+		cout << "\n";
+	}
+
+	if(mat[combinations-1][n-1]!=0){
+		resultado = mat[combinations-1][n-1];
 	}
 
 	return resultado;
