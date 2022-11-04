@@ -4,6 +4,7 @@
 #include <queue>
 #include <cmath>
 #include <math.h>
+#include <bitset>
 
 using namespace std;
 
@@ -81,6 +82,10 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 
 	//bitarray
 	bool bitVector[] = {false, false, false, false, false, false};
+	bitset<6> bits;
+	cout << bits << '\n';
+	cout << bits.to_ulong() << '\n';
+	
 
 	cout << "\n AQUI MAN AQUI MAN: " << bitToDec( bitVector ) << "\n";
 
@@ -121,12 +126,13 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 	//Inicia o primeiro vertice com prob 1
 	distance[0] = 1;
 	//Primeiro vertice e empilhado para startar o algoritmo
-	Q.push( make_pair(0,1) );
+	Q.push( make_pair(0,0) );
 
 	while(Q.size()>0){
 		cout << "\n --------------- Entra While  --------------- \n";
 		int v = Q.top().first;
-		double prob = Q.top().second;
+		int comb = int(Q.top().second);
+		double prob = mat[int(Q.top().second)][v];
 		Q.pop();
 
 		cout << "\nCurrent v: " << v;
@@ -147,33 +153,67 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 			// cout << "i: " << v << " j: " << j << "\n";
 			// cout << "DENTRO LALAL: " << Graph[0][0].second;
 			// cout << "\ncost: " << cost << "\n";
-			// cout << "\nFATHER : " << v << "\n";
+			cout << "\nFATHER : " << v << "\n";
 			// cout << "distance[v] : " << distance[v] << "\n";
-			// cout << "RELAX : " << u << "\n";
+			cout << "RELAX : " << u << "\n";
 			// cout << "distance[u] : " << distance[u] << "\n";
 			// cout << "distance[v]*cost : " << distance[v]*cost << "\n";
-			double newProb = distance[v]*cost;
-			if( distance[u]<distance[v]*cost ){
-				cout << "ENTRA IF \n";
-				distance[u] = distance[v]*cost;
-				Q.push( make_pair(u, distance[u]));
+
+			// double newProb = distance[v]*cost;
+			double newProb = mat[comb][v]*cost;
+			bitset<6> newComb( comb ); 
+			//Se tem um ingrediente no novo vertice atualiza combinação para a tabela
+			if(mapaIngredientes[u]>0 ){
+				bitset<6> aux1( comb );
+				// cout << "aux1: " << aux1;
+				// cout << " \n";
+				bitset<6> aux2;
+				aux2[mapaIngredientes[u]-1] = 1;
+				// cout << "aux2: " << aux2;
+				// cout << " \n";
+				newComb = aux1 | aux2;}
+				// cout << "Decimal: " << mapaIngredientes[u];
+				// cout << " \n";
+				// cout << "ALOOUUUU: " << newComb;
+				cout << "CURRENT_PROB: " << mat[newComb.to_ulong()][u] << " NEW_PROB: " << newProb << "\n";
+				if(mat[newComb.to_ulong()][u]<newProb){
+					mat[newComb.to_ulong()][u] = newProb;
+					Q.push( make_pair(u, newComb.to_ulong()) );
+					cout << "mat[" << newComb.to_ulong() << "][" << u << "] = " << newProb << "\n";
+
+				
+				// return 1;
 			}
+			// cout << "	TESTE LEGAL : " << newProb;
+			// if( distance[u]<distance[v]*cost ){
+			// 	cout << "ENTRA IF \n";
+			// 	distance[u] = distance[v]*cost;
+			// 	Q.push( make_pair(u, distance[u]));
+			// }
 			//Atualiza ingredientes pegos
-			if( mapaIngredientes[u]>0 ){
-				cout << "INGREDIENTE ENCONTRADO: " << mapaIngredientes[u] << "\n";
-				bitVector[6-mapaIngredientes[u]] = true;		
-			}
+			// if( mapaIngredientes[u]>0 ){
+			// 	cout << "INGREDIENTE ENCONTRADO: " << mapaIngredientes[u] << "\n";
+			// 	bitVector[6-mapaIngredientes[u]] = true;	
+			// 	bits[mapaIngredientes[u]-1] = 1;
+			// 	cout << "COMPARA BITS" << bitToDec(bitVector) << "|||" << bits.to_ulong() << '\n';
+			// }
 			//Atualiza estado no tabela
-			if(mat[bitToDec(bitVector)][u]<newProb){
-				cout << "ENTRE NO IF MAN HUHUHUHUHUHU";
-				mat[bitToDec(bitVector)][u] = newProb;
-				cout << "\nTESTESTESTETESTE: " << mat[bitToDec(bitVector)][u];
-				cout << "\n u: " << u << "bittodec: " << bitToDec(bitVector);
-			}
+			// if(mat[bitToDec(bitVector)][u]<newProb){
+			// 	cout << "ENTRE NO IF MAN HUHUHUHUHUHU";
+			// 	mat[bitToDec(bitVector)][u] = newProb;
+			// 	cout << "\nTESTESTESTETESTE: " << mat[bitToDec(bitVector)][u];
+			// 	cout << "\n u: " << u << "bittodec: " << bitToDec(bitVector);
+			// }
+			// if(mat[bits.to_ulong()][u]<newProb){
+			// 	cout << "ENTRE NO IF MAN HUHUHUHUHUHU";
+			// 	mat[bits.to_ulong()][u] = newProb;
+			// 	cout << "\nTESTESTESTETESTE: " << mat[bits.to_ulong()][u];
+			// 	cout << "\n u: " << u << "bittodec: " << bits.to_ulong();
+			// }
 			cout << "\n\n";
 		}
 
-		break;
+		// break;
 	}
 
 	cout << "\n DISTANCE \n";
@@ -190,9 +230,9 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 		cout << "\n";
 	}
 
-	if(mat[combinations-1][n-1]!=0){
-		resultado = mat[combinations-1][n-1];
-	}
+	// if(mat[combinations-1][n-1]!=0){
+	resultado = mat[combinations-1][n-1];
+	// }
 
 	return resultado;
 }
