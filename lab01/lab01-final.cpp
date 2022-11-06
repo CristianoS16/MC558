@@ -39,67 +39,72 @@ double melhorRota(int n, int m, vector<vector<int> > &pontes, vector<double> &pr
 		Graph[pontes[i][1]].push_back( make_pair(pontes[i][0], probPontes[i]) );
 	}
 
-	//Estrutura de dados para guardar os estados
-	int combinations = pow(2,k);
+	/*
+	Estrutura de dados para guardar os estados 
+	Um estado é composto pela probabilidade de se chegar a um certo vertice
+	com uma certa probabilidade e com uma certa combinação de ingredientes
+	No caso, há 64 combinações de ingredientes e no maximo 100 vertices, então
+	uma matriz com essas dimensões é usada para armazenar as probabilidades
+	*/
+	int totalCombinationsNumber = pow(2,k);
 	double mat[64][100];
-  std::fill(*mat, *mat + n*combinations, PROB_MIN);
-	mat[0][0] = 1;
+  std::fill(*mat, *mat + n*totalCombinationsNumber, PROB_MIN);
+	mat[0][0] = 1;	//A probabilidade de se chegar ao vertice inicial é 1
 
-	//Bitset para guardar as possiveis combinações dos ingredientes
-	bitset<6> bits;
-	
-	//Dijkstra 
-
-	//Fila de prioridades para extrair maximo
+	//Dijkstra Modificado
+	//Fila de prioridades para extrair máximo
 	priority_queue<iPair> Q;
 
 	//Primeiro vertice e adicionado a fila de prioridades para startar o algoritmo
 	Q.push( make_pair(0,0) );
 
-
 	while(Q.size()>0){
 
-		//Recupera vertice, conjunto de ingerdientes e probabilidade
+		//Recupera um vertice juntamente com o conjunto de ingerdientes e a probabilidade utilizando a fila de prioridade
 		int v = Q.top().first;
-		int comb = int(Q.top().second);
+		int vComb = int(Q.top().second);
 		
 		//Retira o vertice corrente da fila de prioridades
 		Q.pop();
 
 		//Relax
-		
-		//Verifica o tamanho da lista de adj do vertice corrente
+		//Verifica o tamanho da lista de adjacência do vertice corrente
 		int listSize = Graph[v].size();
 		
-		//Faz o relax para vertice adj
+		//Faz o relax para os vertices adjacentes
 		for(int j=0; j<listSize; j++){
 
-			//Recupera um vertice adjascente e calcula a nova probabilidade para alcança-lo
+			//Recupera um vertice adjacente e calcula a nova probabilidade para alcança-lo
 			int u = Graph[v][j].first;
-			double cost = Graph[v][j].second;
-			double newProb = mat[comb][v]*cost;
+			double vuProb = Graph[v][j].second;
+			double newProb = mat[vComb][v]*vuProb;
 			
-			// Vetor de bits para simbolizar a combinação de ingredientes
-			bitset<6> newComb( comb );
+			//Bitset para guardar as possiveis combinações dos ingredientes
+			/*
+			Para realizar a indexação na matriz anterior é utilizado um bitset de 6 posições
+			o bit 1 na posição i indica que o ingrediente i já foi coletado. O valor presente 
+			no bitset é convertido para decimal e usado como indice na matriz anterior
+			*/
+			bitset<6> uComb( vComb );
 
-			//Se alcança um ingrediente novo atualiza combinação de ingredientes encontrados
+			//Se alcança um ingrediente novo atualiza combinação de ingredientes encontrados no vetor de bits
 			if(mapaIngredientes[u]>0 ){
-				bitset<6> aux1( comb );
+				bitset<6> aux1( vComb );
 				bitset<6> aux2;
 				aux2[mapaIngredientes[u]-1] = 1;
-				newComb = aux1 | aux2;
+				uComb = aux1 | aux2;
 			}
 				
 			//Realiza o Relax de fato, verificando se a nova probabilidade para esse estado e melhor que a anterior
-			if(mat[newComb.to_ulong()][u]<newProb){
-				mat[newComb.to_ulong()][u] = newProb;
-				Q.push( make_pair(u, newComb.to_ulong()) );
+			if(mat[uComb.to_ulong()][u]<newProb){
+				mat[uComb.to_ulong()][u] = newProb;
+				Q.push( make_pair(u, uComb.to_ulong()) );
 			}
 		}
 	}
 
 	//Atualiza o resultado
-	resultado = mat[combinations-1][n-1];
+	resultado = mat[totalCombinationsNumber-1][n-1];
 
 	return resultado;
 }
