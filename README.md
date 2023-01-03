@@ -1,4 +1,4 @@
-#Project and Analysis of Algorithms II
+# Project and Analysis of Algorithms II
 
 ## Content
 * lab01: Haroldo Wants to be a Witch! (Dijkstra Application)
